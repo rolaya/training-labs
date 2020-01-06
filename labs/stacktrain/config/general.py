@@ -10,6 +10,7 @@ import sys
 
 import stacktrain.core.download as dl
 import stacktrain.core.helpers as hf
+import stacktrain.core.log_utils as log_utils
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +31,7 @@ jump_snapshot = None
 
 
 def check_provider():
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     if provider == "virtualbox":
         if do_build and not hf.test_exe("VBoxManage", "-v"):
             logger.error("VBoxManage not found. Is VirtualBox installed?")
@@ -55,6 +57,8 @@ def check_provider():
 
 
 def remove_quotation_marks(line):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
+
     """Removes single or double quotation marks"""
     # Remove quotation marks (if any)
     ma = re.search(r"(?P<quote>['\"])(.+)(?P=quote)", line)
@@ -64,7 +68,13 @@ def remove_quotation_marks(line):
 
 
 class CfgFileParser(object):
+
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
+
     def __init__(self, cfg_file):
+
+        logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
+
         self.file_path = os.path.join(config_dir, cfg_file)
 
         self.cfg_vars = {}
@@ -91,6 +101,8 @@ class CfgFileParser(object):
                     self.cfg_vars[key] = value
 
     def get_value(self, var_name):
+        logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
+
         """Return value for given key (or None if it does not exist)"""
         try:
             return self.cfg_vars[var_name]
@@ -98,6 +110,8 @@ class CfgFileParser(object):
             return None
 
     def get_numbered_value(self, var_name_root):
+        logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
+
         """Return dictionary of key:value pairs where key starts with arg"""
         pairs = {}
         for key in self.cfg_vars:
@@ -182,13 +196,18 @@ distro = ""
 
 
 def get_base_disk_name():
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
+
     return "base-{}-{}-{}".format(vm_access, openstack_release,
                                   iso_image.release_name)
 
 
 class VMconfig(object):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
 
     def __init__(self, vm_name):
+        logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
+
         self.vm_name = vm_name
         self.disks = []
         self._ssh_ip = None
@@ -211,6 +230,8 @@ class VMconfig(object):
         logger.debug(self.__repr__())
 
     def __repr__(self):
+        logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
+
         repr = "<VMconfig: vm_name=%r" % self.vm_name
         repr += " disks=%r" % self.disks
         repr += " ssh_ip=%r" % self.ssh_ip
@@ -227,6 +248,8 @@ class VMconfig(object):
         return repr
 
     def get_config_from_file(self):
+        logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
+
         cfg_vm = CfgFileParser("config." + self.vm_name)
 
         if provider == "virtualbox":
@@ -264,6 +287,7 @@ class VMconfig(object):
             logger.debug("       %s", self.disks[2])
 
     def _parse_net_line(self, index, line):
+        logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
         args = re.split(r'\s+', line)
         self.net_ifs[index]["typ"] = args[0]
 
@@ -294,6 +318,7 @@ class VMconfig(object):
 
 
 class IPaddress(object):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     def __init__(self, ip):
         self.ip = ip
 

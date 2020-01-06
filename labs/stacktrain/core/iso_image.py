@@ -10,6 +10,7 @@ import sys
 import stacktrain.core.helpers as hf
 import stacktrain.core.download as dl
 import stacktrain.config.general as conf
+import stacktrain.core.log_utils as log_utils
 
 distro_boot = importlib.import_module("stacktrain.distros.%s" %
                                       conf.distro_full)
@@ -24,6 +25,7 @@ conf.iso_image = distro_boot.ISOImage()
 
 
 def iso_image_okay(iso_path):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     if os.path.isfile(iso_path):
         logger.debug("There is a file at given path:\n\t%s", iso_path)
         if md5_match(iso_path, conf.iso_image.md5):
@@ -37,6 +39,7 @@ def iso_image_okay(iso_path):
 
 
 def download_and_check(iso_path):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     if iso_image_okay(iso_path):
         logger.info("ISO image okay.")
         return True
@@ -54,6 +57,7 @@ def download_and_check(iso_path):
 
 
 def find_install_iso():
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     iso_path = os.path.join(conf.img_dir, conf.iso_image.name)
 
     if download_and_check(iso_path):
@@ -72,6 +76,7 @@ def find_install_iso():
 
 
 def md5_match(path, correct_md5):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
 
     import hashlib
     with open(path, 'rb') as ff:

@@ -7,6 +7,7 @@ TOP_DIR=$(cd $(cat "../TOP_DIR" 2>/dev/null||echo $(dirname "$0"))/.. && pwd)
 source "$TOP_DIR/config/paths"
 source "$CONFIG_DIR/credentials"
 source "$LIB_DIR/functions.guest.sh"
+source "$CONFIG_DIR/openstack"
 
 exec_logfile
 
@@ -67,8 +68,8 @@ sudo service nova-api restart
 echo "Restarting neutron-server."
 sudo service neutron-server restart
 
-echo "Restarting neutron-linuxbridge-agent."
-sudo service neutron-linuxbridge-agent restart
+echo "Restarting neutron-$ML2_AGENT-agent."
+sudo service neutron-$ML2_AGENT-agent restart
 
 echo "Restarting neutron-dhcp-agent."
 sudo service neutron-dhcp-agent restart

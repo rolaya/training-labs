@@ -12,11 +12,13 @@ from urlparse import urlparse, urlunparse
 import stacktrain.config.general as conf
 import stacktrain.core.download as dl
 import stacktrain.core.helpers as hf
+import stacktrain.core.log_utils as log_utils
 
 logger = logging.getLogger(__name__)
 
 
 def get_git_info():
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     git_exe = "git"
     if not hf.test_exe("git"):
         logger.debug("No git executable found. Unable to log git status.")
@@ -34,6 +36,7 @@ def get_git_info():
 
 
 def print_summary():
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     print("Your cluster nodes:")
     for vm_name, vmc in conf.vm.items():
         logger.info("VM name: %s", vm_name)

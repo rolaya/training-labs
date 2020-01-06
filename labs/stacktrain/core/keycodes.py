@@ -7,6 +7,7 @@ from __future__ import print_function
 import importlib
 import stacktrain.config.general as conf
 import stacktrain.core.cond_sleep as cs
+import stacktrain.core.log_utils as log_utils
 kc = importlib.import_module("stacktrain.%s.keycodes" % conf.provider)
 
 # -----------------------------------------------------------------------------

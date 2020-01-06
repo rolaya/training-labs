@@ -8,6 +8,7 @@ import os
 import urllib2
 
 import stacktrain.core.helpers as hf
+import stacktrain.core.log_utils as log_utils
 
 logger = logging.getLogger(__name__)
 
@@ -48,6 +49,7 @@ class Downloader(object):
         logger.debug("Proxy now: %s", self.get_urllib_proxy())
 
     def download(self, url, target_path=None):
+        logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
         try:
             logger.debug("Trying to download: %s to %s", url, target_path)
             logger.debug("Proxy: %s", self.get_urllib_proxy())

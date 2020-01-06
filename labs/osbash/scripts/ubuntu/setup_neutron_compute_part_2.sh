@@ -43,8 +43,8 @@ iniset_sudo $conf neutron password "$NEUTRON_PASS"
 echo "Restarting the Compute service."
 sudo service nova-compute restart
 
-echo "Restarting neutron-linuxbridge-agent."
-sudo service neutron-linuxbridge-agent restart
+echo "Restarting neutron-$ML2_AGENT-agent."
+sudo service neutron-$ML2_AGENT-agent restart
 
 #------------------------------------------------------------------------------
 # Networking Option 2: Self-service networks

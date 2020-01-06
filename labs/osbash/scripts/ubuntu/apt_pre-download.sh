@@ -44,7 +44,7 @@ apt_download nova-placement-api
 
 # Neutron Controller
 apt_download neutron-server neutron-plugin-ml2 \
-    neutron-linuxbridge-agent neutron-dhcp-agent \
+    neutron-linuxbridge-agent neutron-openvswitch-agent neutron-dhcp-agent \
     neutron-metadata-agent neutron-l3-agent python3-neutronclient conntrack
 
 # Cinder Controller
@@ -60,7 +60,7 @@ apt_download lvm2 cinder-volume thin-provisioning-tools
 apt_download nova-compute nova-compute-qemu qemu sysfsutils
 
 # Neutron Compute
-apt_download neutron-linuxbridge-agent
+apt_download neutron-linuxbridge-agent neutron-openvswitch-agent
 
 # Heat
 apt_download heat-api heat-api-cfn heat-engine python3-heatclient

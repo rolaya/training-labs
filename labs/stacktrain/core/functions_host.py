@@ -14,6 +14,7 @@ import time
 
 import stacktrain.config.general as conf
 import stacktrain.core.helpers as hf
+import stacktrain.core.log_utils as log_utils
 import stacktrain.batch_for_windows as wbatch
 
 logger = logging.getLogger(__name__)
@@ -27,6 +28,7 @@ vm = importlib.import_module("stacktrain.%s.vm_create" % conf.provider)
 
 
 def vm_conditional_snapshot(vm_name, shot_name):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     if conf.wbatch:
         # We need to record the proper command for wbatch; if a snapshot
         # exists, something is wrong and the program will abort
@@ -41,7 +43,7 @@ def vm_conditional_snapshot(vm_name, shot_name):
 
 
 def get_next_file_number(dir_path, suffix=None):
-
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     # Get number of files in directory
     entries = os.listdir(dir_path)
     cnt = 0
@@ -55,6 +57,7 @@ def get_next_file_number(dir_path, suffix=None):
 
 
 def get_next_prefix(dir_path, suffix, digits=3):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     cnt = get_next_file_number(dir_path, suffix)
 
     return ('{:0' + str(digits) + 'd}').format(cnt)

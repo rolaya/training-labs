@@ -25,7 +25,8 @@ indicate_current_auto
 echo "Installing additional packages for self-service networks."
 sudo apt install -y \
     neutron-server neutron-plugin-ml2 \
-    neutron-linuxbridge-agent neutron-l3-agent neutron-dhcp-agent \
+    neutron-linuxbridge-agent neutron-openvswitch-agent \
+    neutron-l3-agent neutron-dhcp-agent \
     neutron-metadata-agent
 
 echo "Configuring neutron for controller node."
@@ -92,12 +93,13 @@ iniset_sudo $conf oslo_concurrency lock_path /var/lib/neutron/tmp
 
 echo "Configuring the Modular Layer 2 (ML2) plug-in."
 conf=/etc/neutron/plugins/ml2/ml2_conf.ini
+echo "Configuring the Modular Layer 2 (ML2) plug-in: [$conf]."
 
 # Edit the [ml2] section.
 iniset_sudo $conf ml2 type_drivers flat,vlan,vxlan
-iniset_sudo $conf ml2 tenant_network_types vxlan
-iniset_sudo $conf ml2 mechanism_drivers linuxbridge,l2population
-iniset_sudo $conf ml2 extension_drivers port_security
+iniset_sudo $conf ml2 tenant_network_types vlan,vxlan
+iniset_sudo $conf ml2 mechanism_drivers $ML2_MECHANISM_DRIVER,l2population
+iniset_sudo $conf ml2 extension_drivers port_security,qos
 
 # Edit the [ml2_type_flat] section.
 iniset_sudo $conf ml2_type_flat flat_networks provider
@@ -108,33 +110,61 @@ iniset_sudo $conf ml2_type_vxlan vni_ranges 1:1000
 iniset_sudo $conf securitygroup enable_ipset true
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-# Configure the Linux bridge agent
+# Configure the ML2 agent (either linuxbridge or openvswitch)
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
-echo "Configuring Linux Bridge agent."
-conf=/etc/neutron/plugins/ml2/linuxbridge_agent.ini
+echo "Configuring $ML2_AGENT_DESC agent."
+conf=/etc/neutron/plugins/ml2/$ML2_AGENT_CONF_FILE
+echo "Configuring Linux Bridge agent: [$conf]."
 
-# Edit the [linux_bridge] section.
-set_iface_list
-PUBLIC_INTERFACE_NAME=$(ifnum_to_ifname 2)
-echo "PUBLIC_INTERFACE_NAME=$PUBLIC_INTERFACE_NAME"
-iniset_sudo $conf linux_bridge physical_interface_mappings provider:$PUBLIC_INTERFACE_NAME
+if [ "$ML2_AGENT" = "linuxbridge" ]; then
+    
+    # Edit the [linux_bridge] section.
+    set_iface_list
+    PUBLIC_INTERFACE_NAME=$(ifnum_to_ifname 2)
+    echo "PUBLIC_INTERFACE_NAME=$PUBLIC_INTERFACE_NAME"
+    iniset_sudo $conf linux_bridge physical_interface_mappings provider:$PUBLIC_INTERFACE_NAME
 
-# Edit the [vxlan] section.
-OVERLAY_INTERFACE_IP_ADDRESS=$(get_node_ip_in_network "$(hostname)" "mgmt")
-iniset_sudo $conf vxlan enable_vxlan true
-iniset_sudo $conf vxlan local_ip $OVERLAY_INTERFACE_IP_ADDRESS
-iniset_sudo $conf vxlan l2_population true
+    # Edit the [vxlan] section.
+    OVERLAY_INTERFACE_IP_ADDRESS=$(get_node_ip_in_network "$(hostname)" "mgmt")
+    iniset_sudo $conf vxlan enable_vxlan true
+    iniset_sudo $conf vxlan local_ip $OVERLAY_INTERFACE_IP_ADDRESS
+    iniset_sudo $conf vxlan l2_population true
 
-# Edit the [securitygroup] section.
-iniset_sudo $conf securitygroup enable_security_group true
-iniset_sudo $conf securitygroup firewall_driver neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
+    # Edit the [securitygroup] section.
+    iniset_sudo $conf securitygroup enable_security_group true
+    iniset_sudo $conf securitygroup firewall_driver neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
 
-echo "Ensuring that the kernel supports network bridge filters."
-if ! sudo sysctl net.bridge.bridge-nf-call-iptables; then
-    sudo modprobe br_netfilter
-    echo "# bridge support module added by training-labs" >> /etc/modules
-    echo br_netfilter >> /etc/modules
+    echo "Ensuring that the kernel supports network bridge filters."
+    if ! sudo sysctl net.bridge.bridge-nf-call-iptables; then
+        sudo modprobe br_netfilter
+        echo "# bridge support module added by training-labs" >> /etc/modules
+        echo br_netfilter >> /etc/modules
+    fi
+else
+
+    # Edit the [linux_bridge] section.
+    set_iface_list
+    PUBLIC_INTERFACE_NAME=$(ifnum_to_ifname 2)
+    echo "PUBLIC_INTERFACE_NAME=$PUBLIC_INTERFACE_NAME"
+    iniset_sudo $conf linux_bridge physical_interface_mappings provider:$PUBLIC_INTERFACE_NAME
+
+    # Edit the [vxlan] section.
+    OVERLAY_INTERFACE_IP_ADDRESS=$(get_node_ip_in_network "$(hostname)" "mgmt")
+    iniset_sudo $conf vxlan enable_vxlan true
+    iniset_sudo $conf vxlan local_ip $OVERLAY_INTERFACE_IP_ADDRESS
+    iniset_sudo $conf vxlan l2_population true
+
+    # Edit the [securitygroup] section.
+    iniset_sudo $conf securitygroup enable_security_group true
+    iniset_sudo $conf securitygroup firewall_driver neutron.agent.linux.iptables_firewall.IptablesFirewallDriver
+
+    echo "Ensuring that the kernel supports network bridge filters."
+    if ! sudo sysctl net.bridge.bridge-nf-call-iptables; then
+        sudo modprobe br_netfilter
+        echo "# bridge support module added by training-labs" >> /etc/modules
+        echo br_netfilter >> /etc/modules
+    fi
 fi
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -143,7 +173,7 @@ fi
 
 echo "Configuring the layer-3 agent."
 conf=/etc/neutron/l3_agent.ini
-iniset_sudo $conf DEFAULT interface_driver linuxbridge
+iniset_sudo $conf DEFAULT interface_driver $VIRT_IFACE_DRIVER
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 # Configure the DHCP agent
@@ -151,7 +181,7 @@ iniset_sudo $conf DEFAULT interface_driver linuxbridge
 
 echo "Configuring the DHCP agent."
 conf=/etc/neutron/dhcp_agent.ini
-iniset_sudo $conf DEFAULT interface_driver linuxbridge
+iniset_sudo $conf DEFAULT interface_driver $VIRT_IFACE_DRIVER
 iniset_sudo $conf DEFAULT dhcp_driver neutron.agent.linux.dhcp.Dnsmasq
 iniset_sudo $conf DEFAULT enable_isolated_metadata true
 

@@ -12,6 +12,7 @@ import stacktrain.config.virtualbox as cvb
 
 import stacktrain.virtualbox.vm_create as vm
 import stacktrain.core.functions_host as host
+import stacktrain.core.log_utils as log_utils
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +20,7 @@ logger = logging.getLogger(__name__)
 
 
 def configure_node_netifs(vm_name):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
 
     for index, iface in enumerate(conf.vm[vm_name].net_ifs):
         if iface["typ"] == "dhcp":
@@ -38,6 +40,7 @@ def configure_node_netifs(vm_name):
 
 
 def vm_create_node(vm_name):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
 
     try:
         vm_config = conf.vm[vm_name]

@@ -14,6 +14,7 @@ import stacktrain.core.download as dl
 import stacktrain.core.keycodes as kc
 import stacktrain.config.general as conf
 import stacktrain.distros.distro as distro
+import stacktrain.core.log_utils as log_utils
 
 logger = logging.getLogger(__name__)
 
@@ -25,8 +26,9 @@ conf.distro = "ubuntu"
 # -----------------------------------------------------------------------------
 
 class ISOImage(distro.GenericISOImage):
-
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     def __init__(self, arch="amd64"):
+        logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
         super(ISOImage, self).__init__()
         self.arch = arch
         if arch == "amd64":
@@ -51,6 +53,7 @@ class ISOImage(distro.GenericISOImage):
     # new ISO appears.
 
     def update_iso_image_variables(self):
+        logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
 
         # Get matching line from distro repo's MD5SUMS file, e.g.
         # "9e5fecc94b3925bededed0fdca1bd417 *ubuntu-14.04.3-server-amd64.iso"
@@ -101,6 +104,7 @@ _BOOT_ARGS = ("/install/vmlinuz"
 
 
 def distro_start_installer(config):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     """Boot the ISO image operating system installer"""
 
     preseed = PRESEED_URL[conf.vm_access]

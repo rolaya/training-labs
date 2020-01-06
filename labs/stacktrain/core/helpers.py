@@ -9,11 +9,13 @@ import re
 import subprocess
 import sys
 import time
+import stacktrain.core.log_utils as log_utils
 
 logger = logging.getLogger(__name__)
 
 
 def strip_top_dir(root_path_to_remove, full_path):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     if re.match(root_path_to_remove, full_path):
         return os.path.relpath(full_path, root_path_to_remove)
     else:
@@ -24,6 +26,7 @@ def strip_top_dir(root_path_to_remove, full_path):
 
 
 def create_dir(dir_path):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     """Create directory (including parents if necessary)."""
     try:
         os.makedirs(dir_path)
@@ -35,6 +38,7 @@ def create_dir(dir_path):
 
 
 def clean_dir(dir_path):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     """Non-recursive removal of all files except README.*"""
     if not os.path.exists(dir_path):
         create_dir(dir_path)
@@ -54,11 +58,13 @@ def clean_dir(dir_path):
 
 
 def fmt_time_diff(start, stop=None):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     stop = stop or time.time()
     return "%3d" % round(stop - start)
 
 
 def wait_for_ping(ip):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     logger.debug("Waiting for ping returning from %s.", ip)
     devnull = open(os.devnull, 'w')
     while True:
@@ -73,14 +79,17 @@ def wait_for_ping(ip):
 
 
 def ip_to_gateway(ip):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     return remove_last_octet(ip) + '1'
 
 
 def ip_to_net_address(ip):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     return remove_last_octet(ip) + '0'
 
 
 def remove_last_octet(ip):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     ma = re.match(r'(\d+\.\d+.\d+\.)\d+', ip)
     if ma:
         return ma.group(1)
@@ -89,6 +98,7 @@ def remove_last_octet(ip):
 
 
 def test_exe(*args):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     devnull = open(os.devnull, 'w')
 
     try:

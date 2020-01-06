@@ -1,5 +1,6 @@
 import time
 import stacktrain.config.general as conf
+import stacktrain.core.log_utils as log_utils
 
 import stacktrain.batch_for_windows as wbatch
 

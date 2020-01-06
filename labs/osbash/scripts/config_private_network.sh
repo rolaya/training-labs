@@ -4,6 +4,8 @@ TOP_DIR=$(cd $(cat "../TOP_DIR" 2>/dev/null||echo $(dirname "$0"))/.. && pwd)
 source "$TOP_DIR/config/paths"
 source "$CONFIG_DIR/credentials"
 source "$LIB_DIR/functions.guest.sh"
+source "$CONFIG_DIR/openstack"
+
 exec_logfile
 
 indicate_current_auto
@@ -98,8 +100,8 @@ function wait_for_agent {
 
 wait_for_agent neutron-l3-agent
 
-echo "linuxbridge-agent and dhcp-agent must be up before we can add interfaces."
-wait_for_agent neutron-linuxbridge-agent
+echo "$ML2_AGENT-agent and dhcp-agent must be up before we can add interfaces."
+wait_for_agent neutron-$ML2_AGENT-agent
 wait_for_agent neutron-dhcp-agent
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

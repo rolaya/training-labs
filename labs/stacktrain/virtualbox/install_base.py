@@ -17,6 +17,7 @@ import stacktrain.core.iso_image as iso_image
 import stacktrain.batch_for_windows as wbatch
 import stacktrain.core.autostart as autostart
 import stacktrain.core.cond_sleep as cs
+import stacktrain.core.log_utils as log_utils
 
 distro_boot = importlib.import_module("stacktrain.distros.%s" %
                                       conf.distro_full)
@@ -25,10 +26,12 @@ logger = logging.getLogger(__name__)
 
 
 def base_disk_exists():
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     return os.path.isfile(cvb.get_base_disk_path())
 
 
 def disk_delete_child_vms(disk):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     if not vm.disk_registered(disk):
         logger.warn("Disk not registered with VirtualBox:\n\t%s", disk)
         return 0
@@ -49,6 +52,7 @@ def disk_delete_child_vms(disk):
 
 
 def base_disk_delete():
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     base_disk_path = cvb.get_base_disk_path()
 
     if vm.disk_registered(base_disk_path):
@@ -69,6 +73,7 @@ def base_disk_delete():
 
 
 def vm_install_base():
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     vm_name = "base"
     conf.vm[vm_name] = conf.VMconfig(vm_name)
 

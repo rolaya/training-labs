@@ -53,6 +53,23 @@ PXE_INITIAL_NODE_IP="10.0.0.240"
 # Default is Google Public DNS (8.8.4.4).
 : ${DNS_RESOLVER:=8.8.4.4}
 
+# Uncomment these to use openvswitch
+#ML2_AGENT="openvswitch"
+#ML2_AGENT_DESC="Open vSwitch"
+#ML2_AGENT_CONF_FILE="openvswitch_agent.ini"
+#ML2_MECHANISM_DRIVER="openvswitch"
+#VIRT_IFACE_DRIVER="openvswitch"
+
+# Modular Layer 2 (ML2) networking related.
+# ML2 agent: Default to linuxbridge.
+: ${ML2_AGENT:="linuxbridge"}
+: ${ML2_AGENT_DESC:="Linux Bridge"}
+: ${ML2_AGENT_CONF_FILE:="linuxbridge_agent.ini"}
+: ${ML2_MECHANISM_DRIVER:="linuxbridge"}
+
+# Virtual interface driver (used to manage interface)
+: ${VIRT_IFACE_DRIVER:="linuxbridge"}
+
 : ${REGION:=RegionOne}
 
 # vim: set ai ts=4 sw=4 et ft=sh:

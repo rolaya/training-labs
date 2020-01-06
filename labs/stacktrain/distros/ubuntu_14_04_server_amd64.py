@@ -14,6 +14,7 @@ import stacktrain.core.download as dl
 import stacktrain.core.keycodes as kc
 import stacktrain.config.general as conf
 import stacktrain.distros.distro as distro
+import stacktrain.core.log_utils as log_utils
 
 logger = logging.getLogger(__name__)
 

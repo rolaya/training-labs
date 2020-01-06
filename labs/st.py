@@ -19,6 +19,7 @@ import stacktrain.core.helpers as hf
 import stacktrain.config.general as conf
 import stacktrain.core.report as report
 import stacktrain.batch_for_windows as wbatch
+import stacktrain.core.log_utils as log_utils
 
 # -----------------------------------------------------------------------------
 
@@ -191,6 +192,12 @@ def main():
     import stacktrain.core.autostart as autostart
     import stacktrain.core.node_builder as node_builder
     import stacktrain.core.functions_host as host
+
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
+    log_utils.log_message("this is a test")
+    log_utils.log_entry()
+
+    #sys.exit(1)
 
     # W0612: variable defined but not used
     # pylint_: disable=W0612

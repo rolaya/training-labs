@@ -11,6 +11,7 @@ import sys
 import traceback
 
 import stacktrain.config.general as conf
+import stacktrain.core.log_utils as log_utils
 
 import stacktrain.core.helpers as hf
 
@@ -18,6 +19,7 @@ logger = logging.getLogger(__name__)
 
 
 def get_osbash_private_key():
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     key_path = os.path.join(conf.lib_dir, "osbash-ssh-keys", "osbash_key")
     if os.path.isfile(key_path):
         mode = os.stat(key_path).st_mode & 0o777
@@ -32,6 +34,7 @@ def get_osbash_private_key():
 
 
 def vm_scp_to_vm(vm_name, *args):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     """
     Copy files or directories (incl. implied directories) to a VM's osbash
     home directory
@@ -75,6 +78,7 @@ def vm_scp_to_vm(vm_name, *args):
 
 
 def vm_ssh(vm_name, *args, **kwargs):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     key_path = get_osbash_private_key()
 
     live_log = kwargs.pop('log_file', None)
@@ -138,6 +142,7 @@ def vm_ssh(vm_name, *args, **kwargs):
 
 
 def wait_for_ssh(vm_name):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     while True:
         try:
             vm_ssh(vm_name, "exit", show_err=False)

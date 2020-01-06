@@ -17,6 +17,7 @@ import stacktrain.config.general as conf
 import stacktrain.core.helpers as hf
 import stacktrain.core.cond_sleep as cs
 import stacktrain.batch_for_windows as wb
+import stacktrain.core.log_utils as log_utils
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +26,7 @@ conf.vbox_ostype = None
 
 
 def init():
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     output = vbm("--version")
     # We only get an output if we are actually building the cluster
     if conf.do_build:
@@ -36,6 +38,7 @@ def init():
 
 
 def vbm_log(call_args, err_code=None):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     log_file = os.path.join(conf.log_dir, "vboxmanage.log")
     msg = ' '.join(call_args)
     if err_code:
@@ -48,6 +51,7 @@ def vbm_log(call_args, err_code=None):
 
 
 def vbm(*args, **kwargs):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     # wbatch parameter can override conf.wbatch setting
     wbatch = kwargs.pop('wbatch', conf.wbatch)
     if wbatch:
@@ -101,11 +105,13 @@ def vbm(*args, **kwargs):
 
 
 def vm_exists(vm_name):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     output = vbm("list", "vms", wbatch=False)
     return True if re.search('"' + vm_name + '"', output) else False
 
 
 def get_vm_state(vm_name):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     state = None
     try:
         output = vbm("showvminfo", "--machinereadable", vm_name, wbatch=False,
@@ -124,6 +130,7 @@ def get_vm_state(vm_name):
 
 
 def vm_is_running(vm_name):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     vm_state = get_vm_state(vm_name)
     if vm_state in ("running", "stopping"):
         logger.debug("vm_is_running: ;%s;", vm_state)
@@ -133,6 +140,7 @@ def vm_is_running(vm_name):
 
 
 def vm_is_shut_down(vm_name):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     vm_state = get_vm_state(vm_name)
     if vm_state == "poweroff":
         logger.debug("vm_is_shut_down: ;%s;", vm_state)
@@ -143,6 +151,7 @@ def vm_is_shut_down(vm_name):
 
 # TODO move vm_wait_for_shutdown to functions_host
 def vm_wait_for_shutdown(vm_name, timeout=None):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     if conf.wbatch:
         wb.wbatch_wait_poweroff(vm_name)
         cs.conditional_sleep(1)
@@ -168,6 +177,7 @@ def vm_wait_for_shutdown(vm_name, timeout=None):
 
 
 def vm_power_off(vm_name):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     if vm_is_running(vm_name):
         logger.info("Powering off VM %s", vm_name)
         try:
@@ -185,6 +195,7 @@ def vm_power_off(vm_name):
 
 
 def vm_acpi_shutdown(vm_name):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     logger.info("Shutting down VM  %s.", vm_name)
     vbm("controlvm", vm_name, "acpipowerbutton")
     # VirtualBox VM needs a break before taking new commands
@@ -195,6 +206,7 @@ def vm_acpi_shutdown(vm_name):
 # Note: This function must be called when no Windows batch file is open for
 #       writing (wbatch_write will ignore all these calls).
 def stop_running_cluster_vms():
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     # Get VM ID from a line looking like this:
     # "My VM" {0a13e26d-9543-460d-82d6-625fa657b7c4}
     output = vbm("list", "runningvms")
@@ -224,12 +236,14 @@ def stop_running_cluster_vms():
 
 
 def hostonlyif_in_use(if_name):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     output = vbm("list", "-l", "runningvms", wbatch=False)
     return re.search("NIC.*Host-only Interface '{}'".format(if_name),
                      output, flags=re.MULTILINE)
 
 
 def ip_to_hostonlyif(ip):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     ip_net_address = hf.ip_to_net_address(ip)
 
     if not conf.do_build:
@@ -261,6 +275,7 @@ def ip_to_hostonlyif(ip):
 
 
 def create_hostonlyif():
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     output = vbm("hostonlyif", "create", wbatch=False)
     # output is something like "Interface 'vboxnet3' was successfully created"
     ma = re.search(r"^Interface '(\S+)' was successfully created",
@@ -274,6 +289,7 @@ def create_hostonlyif():
 
 
 def create_network(net_name, ip_address):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     # The host-side interface is the default gateway of the network
 
     if_name = ip_to_hostonlyif(ip_address)
@@ -301,6 +317,7 @@ def create_network(net_name, ip_address):
 
 
 def vm_mem(vm_config):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     # Default RAM allocation is 512 MB per VM
     mem = vm_config.vm_mem or 512
 
@@ -308,6 +325,7 @@ def vm_mem(vm_config):
 
 
 def vm_cpus(vm_config):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     # Default RAM allocation is 512 MB per VM
     cpus = vm_config.vm_cpus or 1
 
@@ -315,11 +333,13 @@ def vm_cpus(vm_config):
 
 
 def vm_port(vm_name, desc, hostport, guestport):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     natpf1_arg = "{},tcp,127.0.0.1,{},,{}".format(desc, hostport, guestport)
     vbm("modifyvm", vm_name, "--natpf1", natpf1_arg)
 
 
 def vm_nic_base(vm_name, index):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     # We start counting interfaces at 0, but VirtualBox starts NICs at 1
     nic = index + 1
     vbm("modifyvm", vm_name,
@@ -328,6 +348,7 @@ def vm_nic_base(vm_name, index):
 
 
 def vm_nic_std(vm_name, iface, index):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     # We start counting interfaces at 0, but VirtualBox starts NICs at 1
     nic = index + 1
     hostif = ip_to_hostonlyif(iface["ip"])
@@ -339,6 +360,7 @@ def vm_nic_std(vm_name, iface, index):
 
 
 def vm_nic_set_boot_prio(vm_name, iface, index):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     # We start counting interfaces at 0, but VirtualBox starts NICs at 1
     nic = index + 1
 
@@ -347,6 +369,7 @@ def vm_nic_set_boot_prio(vm_name, iface, index):
 
 
 def vm_create(vm_config):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     vm_name = vm_config.vm_name
 
     if conf.wbatch:
@@ -387,11 +410,13 @@ def vm_create(vm_config):
 
 
 def vm_unregister_del(vm_name):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     logger.info("Unregistering and deleting VM: %s", vm_name)
     vbm("unregistervm", vm_name, "--delete")
 
 
 def vm_delete(vm_name):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     logger.info("Asked to delete VM %s ", vm_name)
     if vm_exists(vm_name):
         logger.info("\tfound")
@@ -416,6 +441,7 @@ def vm_delete(vm_name):
 
 
 def vm_add_share_automount(vm_name, share_dir, share_name):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     vbm("sharedfolder", "add", vm_name,
         "--name", share_name,
         "--hostpath", share_dir,
@@ -423,6 +449,7 @@ def vm_add_share_automount(vm_name, share_dir, share_name):
 
 
 def vm_add_share(vm_name, share_dir, share_name):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     vbm("sharedfolder", "add", vm_name,
         "--name", share_name,
         "--hostpath", share_dir)
@@ -433,6 +460,7 @@ def vm_add_share(vm_name, share_dir, share_name):
 
 
 def get_next_child_disk_uuid(disk):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     if not disk_registered(disk):
         return
 
@@ -451,6 +479,7 @@ def get_next_child_disk_uuid(disk):
 
 
 def disk_to_vm(disk):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     output = vbm("showhdinfo", disk, wbatch=False)
 
     line = re.search(r'^In use by VMs:\s+(\S+)', output, flags=re.MULTILINE)
@@ -463,6 +492,7 @@ def disk_to_vm(disk):
 
 
 def disk_to_path(disk):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     output = vbm("showhdinfo", disk, wbatch=False)
 
     # Note: path may contain whitespace
@@ -480,17 +510,20 @@ def disk_to_path(disk):
 
 
 def disk_registered(disk):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     """disk can be either a path or a disk UUID"""
     output = vbm("list", "hdds", wbatch=False)
     return re.search(disk, output)
 
 
 def disk_unregister(disk):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     logger.info("Unregistering disk\n\t%s", disk)
     vbm("closemedium", "disk", disk)
 
 
 def create_vdi(path, size):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
 
     # Make sure target directory exists
     hf.create_dir(os.path.dirname(path))
@@ -507,6 +540,7 @@ def create_vdi(path, size):
 
 
 def vm_get_disk_path(vm_name):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     output = vbm("showvminfo", "--machinereadable", vm_name, wbatch=False)
     line = re.search(r'^"SATA-0-0"="(.*vdi)"$', output, flags=re.MULTILINE)
     try:
@@ -518,6 +552,7 @@ def vm_get_disk_path(vm_name):
 
 
 def vm_detach_disk(vm_name, port=0):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     logger.info("Detaching disk from VM %s.", vm_name)
     vbm("storageattach", vm_name,
         "--storagectl", "SATA",
@@ -530,6 +565,7 @@ def vm_detach_disk(vm_name, port=0):
 
 
 def vm_attach_dvd(vm_name, iso, port=0):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     logger.info("Attaching DVD to VM %s:\n\t%s", vm_name, iso)
     vbm("storageattach", vm_name,
         "--storagectl", "IDE",
@@ -540,6 +576,7 @@ def vm_attach_dvd(vm_name, iso, port=0):
 
 
 def vm_attach_disk(vm_name, disk, port=0):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     """disk can be either a path or a disk UUID"""
     logger.info("Attaching disk to VM %s:\n\t%s", vm_name, disk)
     vbm("storageattach", vm_name,
@@ -552,6 +589,7 @@ def vm_attach_disk(vm_name, disk, port=0):
 
 # disk can be either a path or a disk UUID
 def vm_disk_is_multiattach(disk):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     output = vbm("showmediuminfo", disk, wbatch=False)
     regex = re.compile(r"^Type:.*multiattach", re.MULTILINE)
     return True if re.search(regex, output) else False
@@ -559,6 +597,7 @@ def vm_disk_is_multiattach(disk):
 
 # disk can be either a path or a disk UUID
 def vm_attach_disk_multi(vm_name, disk, port=0):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     vbm("modifyhd", "--type", "multiattach", disk)
 
     logger.info("Attaching to VM %s (multi):\n\t%s", vm_name, disk)
@@ -575,6 +614,7 @@ def vm_attach_disk_multi(vm_name, disk, port=0):
 
 
 def vm_attach_guestadd_iso(vm_name):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     if conf.wbatch:
         # Record the calls for wbatch (this should always work because the
         # Windows VirtualBox always comes with the guest additions)
@@ -616,6 +656,7 @@ def vm_attach_guestadd_iso(vm_name):
 
 
 def vm_snapshot_list(vm_name):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     output = None
     if vm_exists(vm_name):
         try:
@@ -628,6 +669,7 @@ def vm_snapshot_list(vm_name):
 
 
 def vm_snapshot_exists(vm_name, shot_name):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     snap_list = vm_snapshot_list(vm_name)
     if snap_list:
         return re.search('SnapshotName.*="{}"'.format(shot_name), snap_list)
@@ -636,6 +678,7 @@ def vm_snapshot_exists(vm_name, shot_name):
 
 
 def vm_snapshot(vm_name, shot_name):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     vbm("snapshot", vm_name, "take", shot_name)
 
     # VirtualBox VM needs a break before taking new commands
@@ -647,6 +690,7 @@ def vm_snapshot(vm_name, shot_name):
 
 
 def vm_boot(vm_name):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     log_str = "Starting VM {}".format(vm_name)
 
     if conf.do_build:

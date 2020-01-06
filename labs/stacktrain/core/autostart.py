@@ -18,6 +18,7 @@ import stacktrain.batch_for_windows as wbatch
 import stacktrain.core.functions_host as host
 import stacktrain.core.helpers as hf
 import stacktrain.core.iso_image as iso_image
+import stacktrain.core.log_utils as log_utils
 # import stacktrain.kvm.install_node as inst_node
 # import stacktrain.virtualbox.vm_create as vm
 inst_node = import_module("stacktrain.%s.install_node" % conf.provider)
@@ -27,6 +28,7 @@ logger = logging.getLogger(__name__)
 
 
 def ssh_exec_script(vm_name, script_path):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     ssh.vm_scp_to_vm(vm_name, script_path)
 
     remote_path = hf.strip_top_dir(conf.top_dir, script_path)
@@ -49,6 +51,7 @@ def ssh_exec_script(vm_name, script_path):
 
 
 def ssh_process_autostart(vm_name):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
 
     # If a KVM VM has been created by an earlier script run, its IP address
     # is not known
@@ -82,12 +85,14 @@ def ssh_process_autostart(vm_name):
 
 
 def autostart_reset():
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     logger.debug("Resetting autostart directories.")
     hf.clean_dir(conf.autostart_dir)
     hf.clean_dir(conf.status_dir)
 
 
 def process_begin_files():
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     for begin_file in sorted(glob(join(conf.status_dir, "*.sh.begin"))):
         match = re.match(r'.*/(.*).begin', begin_file)
         os.remove(begin_file)
@@ -95,12 +100,14 @@ def process_begin_files():
 
 
 def autofiles_processing_done():
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     err_path = join(conf.status_dir, "error")
     done_path = join(conf.status_dir, "done")
     return isfile(done_path) or isfile(err_path)
 
 
 def wait_for_autofiles():
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     if conf.wbatch:
         wbatch.wbatch_wait_auto()
 
@@ -130,6 +137,7 @@ def wait_for_autofiles():
 
 
 def autostart_and_wait(vm_name):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     sys.stdout.flush()
 
     if not conf.wbatch:
@@ -159,6 +167,7 @@ def autostart_and_wait(vm_name):
 
 
 def _autostart_queue(src_rel_path, target_name=None):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     src_path = join(conf.scripts_dir, src_rel_path)
     src_name = basename(src_path)
 
@@ -184,10 +193,12 @@ def _autostart_queue(src_rel_path, target_name=None):
 
 
 def autostart_queue_and_rename(src_dir, src_file, target_file):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     _autostart_queue(join(src_dir, src_file), target_file)
 
 
 def autostart_queue(*args):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     for script in args:
         _autostart_queue(script)
 
@@ -195,11 +206,13 @@ def autostart_queue(*args):
 
 
 def syntax_error_abort(line):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     logger.error("Syntax error: %s", line)
     sys.exit(1)
 
 
 def get_vmname_arg(line, args):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     if len(args) == 3 and args[1] == "-n":
         vm_name = args[2]
         if vm_name not in conf.vm:
@@ -210,6 +223,7 @@ def get_vmname_arg(line, args):
 
 
 def get_two_args(line, args):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     if len(args) == 4 and args[1] == "-n":
         vm_name = args[2]
         arg2 = args[3]
@@ -221,6 +235,7 @@ def get_two_args(line, args):
 
 
 def command_from_config(line):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     # Drop trailing whitespace and newline
     line = line.rstrip()
 
@@ -284,6 +299,7 @@ def command_from_config(line):
 
 # Parse config/scripts.* configuration files
 def autostart_from_config(cfg_file):
+    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     cfg_path = join(conf.config_dir, cfg_file)
 
     if not isfile(cfg_path):
