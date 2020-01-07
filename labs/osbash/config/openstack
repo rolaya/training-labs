@@ -53,12 +53,16 @@ PXE_INITIAL_NODE_IP="10.0.0.240"
 # Default is Google Public DNS (8.8.4.4).
 : ${DNS_RESOLVER:=8.8.4.4}
 
-# Uncomment these to use openvswitch
-#ML2_AGENT="openvswitch"
-#ML2_AGENT_DESC="Open vSwitch"
-#ML2_AGENT_CONF_FILE="openvswitch_agent.ini"
-#ML2_MECHANISM_DRIVER="openvswitch"
-#VIRT_IFACE_DRIVER="openvswitch"
+# Set to true to use openvswitch as ML2 agent
+USE_OVS_AS_ML2_AGENT=true
+
+if [ $USE_OVS_AS_ML2_AGENT = true ]; then
+    ML2_AGENT="openvswitch"
+    ML2_AGENT_DESC="Open vSwitch"
+    ML2_AGENT_CONF_FILE="openvswitch_agent.ini"
+    ML2_MECHANISM_DRIVER="openvswitch"
+    VIRT_IFACE_DRIVER="openvswitch"
+fi
 
 # Modular Layer 2 (ML2) networking related.
 # ML2 agent: Default to linuxbridge.

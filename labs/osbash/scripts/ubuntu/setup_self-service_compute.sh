@@ -22,8 +22,9 @@ indicate_current_auto
 # Configure the ML2 agent (one of Linux bridge, Open vSwitch)
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 
+# The configuration file is either "openvswitch_agent.ini" or "linuxbridge_agent.ini"
 conf=/etc/neutron/plugins/ml2/$ML2_AGENT_CONF_FILE
-echo "Configuring the $ML2_AGENT_DESC agent: [$ML2_AGENT] configuration file: [$conf]."
+echo "Configuring the $ML2_AGENT_DESC agent: [$ML2_AGENT], configuration file: [$conf]."
 
 if [ "$ML2_AGENT" = "linuxbridge" ]; then
 
