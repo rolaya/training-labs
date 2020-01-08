@@ -74,8 +74,8 @@ cmd boot -n compute1
 #==============================================================================
 # Create networks
 cmd shutdown -n controller
-cmd queue config_public_network.sh
-cmd queue config_private_network.sh
+#cmd queue config_public_network.sh
+#cmd queue config_private_network.sh
 cmd boot -n controller
 #==============================================================================
 # Always take snapshots of finished cluster
