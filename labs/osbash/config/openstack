@@ -12,6 +12,8 @@ if [ "$(uname -m)" = "x86_64" ]; then
 else
     arch=i386
 fi
+
+#rolaya: modify this to include other images
 CIRROS_URL="http://download.cirros-cloud.net/0.4.0/cirros-0.4.0-$arch-disk.img"
 unset arch
 

@@ -12,6 +12,7 @@ import traceback
 
 import stacktrain.config.general as conf
 import stacktrain.core.log_utils as log_utils
+import stacktrain.core.app_utils as app_utils
 
 import stacktrain.core.helpers as hf
 
@@ -29,7 +30,7 @@ def get_osbash_private_key():
             os.chmod(key_path, 0o400)
     else:
         logger.error("Key file not found at:\n\t%s", key_path)
-        sys.exit(1)
+        app_utils.exit(1)
     return key_path
 
 
@@ -74,7 +75,7 @@ def vm_scp_to_vm(vm_name, *args):
             logger.error("Copying from\n\t%s\n\tto\n\t%s",
                          src_path, full_target)
             logger.error("\trc=%s: %s", err.returncode, err.output)
-            sys.exit(1)
+            app_utils.exit(1)
 
 
 def vm_ssh(vm_name, *args, **kwargs):
@@ -83,6 +84,8 @@ def vm_ssh(vm_name, *args, **kwargs):
 
     live_log = kwargs.pop('log_file', None)
     show_err = kwargs.pop('show_err', True)
+
+    logger.info('%s(): caller: [%s]', log_utils.get_fname(1), target)
 
     try:
         target = "{}@{}".format(conf.vm_shell_user, conf.vm[vm_name].ssh_ip)
@@ -130,7 +133,7 @@ def vm_ssh(vm_name, *args, **kwargs):
                 if show_err:
                     logger.exception("vm_ssh: Aborting.")
                     traceback.print_exc(file=sys.stdout)
-                    sys.exit(1)
+                    app_utils.exit(1)
                 raise EnvironmentError
 
     except subprocess.CalledProcessError as err:

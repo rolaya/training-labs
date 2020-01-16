@@ -47,30 +47,30 @@ cmd snapshot_cycle -n controller heat_controller_installed
 
 cmd boot -n controller
 #==============================================================================
-# Scripts for compute1 node
-cmd create_node -n compute1
-cmd queue_renamed -n compute1 osbash/init_xxx_node.sh
+# Scripts for $node_compute node
+cmd create_node -n $node_compute
+cmd queue_renamed -n $node_compute osbash/init_xxx_node.sh
 
 cmd queue etc_hosts.sh
 cmd queue osbash/enable_osbash_ssh_keys.sh
 cmd queue osbash/copy_openrc.sh
-cmd snapshot_cycle -n compute1 compute1_node_init
+cmd snapshot_cycle -n $node_compute $node_compute_node_init
 
 # Compute
 cmd queue ubuntu/setup_nova_compute.sh
-cmd snapshot_cycle -n compute1 nova-compute1_installed
+cmd snapshot_cycle -n $node_compute nova-$node_compute_installed
 
 # Networking
 cmd queue ubuntu/setup_neutron_compute.sh
 cmd queue ubuntu/setup_self-service_compute.sh
 cmd queue ubuntu/setup_neutron_compute_part_2.sh
-cmd snapshot_cycle -n compute1 neutron-compute_installed
+cmd snapshot_cycle -n $node_compute neutron-compute_installed
 
 # Block Storage
 cmd queue ubuntu/setup_cinder_volumes.sh
-cmd snapshot_cycle -n compute1 cinder-volume_installed
+cmd snapshot_cycle -n $node_compute cinder-volume_installed
 
-cmd boot -n compute1
+cmd boot -n $node_compute
 #==============================================================================
 # Create networks
 cmd shutdown -n controller
@@ -80,12 +80,12 @@ cmd boot -n controller
 #==============================================================================
 # Always take snapshots of finished cluster
 cmd shutdown -n controller
-cmd shutdown -n compute1
+cmd shutdown -n $node_compute
 cmd snapshot -n controller controller_-_cluster_installed
-cmd snapshot -n compute1 compute-_cluster_installed
+cmd snapshot -n $node_compute compute-_cluster_installed
 
 # Boot cluster nodes -- cluster is ready for use
-cmd boot -n compute1
+cmd boot -n $node_compute
 
 # Enable extra services as needed:
 #

@@ -20,6 +20,7 @@ from shutil import copyfile
 
 import stacktrain.config.general as conf
 import stacktrain.core.helpers as hf
+import stacktrain.core.app_utils as app_utils
 
 logger = logging.getLogger(__name__)
 
@@ -88,7 +89,7 @@ def wbatch_write(*args):
                               str(*args))
                 logging.exception("Exception")
                 import sys
-                sys.exit(1)
+                app_utils.exit(1)
 
 
 def wbatch_write_template(template, replace=None):

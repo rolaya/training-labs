@@ -10,6 +10,7 @@ import subprocess
 import sys
 import time
 import stacktrain.core.log_utils as log_utils
+import stacktrain.core.app_utils as app_utils
 
 logger = logging.getLogger(__name__)
 
@@ -22,7 +23,7 @@ def strip_top_dir(root_path_to_remove, full_path):
         # TODO error handling
         logger.error("Cannot strip path\n\t%s\n\tfrom\n\t%s", full_path,
                      root_path_to_remove)
-        sys.exit(1)
+        app_utils.exit(1)
 
 
 def create_dir(dir_path):

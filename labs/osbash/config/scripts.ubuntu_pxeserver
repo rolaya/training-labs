@@ -18,7 +18,7 @@ cmd queue pxe_server/install_pxeserver.sh
 cmd queue_renamed -n controller ubuntu/create_xxx_node_pxeboot.sh
 
 # Add scripts for creating netboot config file on PXE server
-cmd queue_renamed -n compute1 ubuntu/create_xxx_node_pxeboot.sh
+cmd queue_renamed -n $node_compute ubuntu/create_xxx_node_pxeboot.sh
 
 cmd snapshot_cycle -n pxeserver pxe_server_ready
 #- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -

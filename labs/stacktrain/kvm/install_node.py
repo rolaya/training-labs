@@ -11,6 +11,7 @@ import stacktrain.config.general as conf
 
 import stacktrain.kvm.vm_create as vm
 import stacktrain.core.functions_host as host
+import stacktrain.core.app_utils as app_utils
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +51,7 @@ def vm_create_node(vm_name):
             call_args.extend(["--network", "network={}".format(net_name)])
         else:
             logger.error("Unknown interface type: %s", iface.typ)
-            sys.exit(1)
+            app_utils.exit(1)
 
     for index, disk in enumerate(conf.vm[vm_name].disks):
         # Turn number into letter (0->a, 1->b, etc.)

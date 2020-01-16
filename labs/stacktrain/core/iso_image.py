@@ -72,7 +72,7 @@ def find_install_iso():
         return iso_path
 
     logger.error("Download failed for:\n\t%s", conf.iso_image.url)
-    sys.exit(1)
+    app_utils.exit(1)
 
 
 def md5_match(path, correct_md5):

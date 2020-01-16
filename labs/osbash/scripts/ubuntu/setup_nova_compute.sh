@@ -122,7 +122,7 @@ echo
 echo -n "Confirming that the compute host is in the database."
 AUTH="source $CONFIG_DIR/admin-openstackrc.sh"
 node_ssh controller "$AUTH; openstack compute service list --service nova-compute"
-until node_ssh controller "$AUTH; openstack compute service list --service nova-compute | grep 'compute1.*up'" >/dev/null 2>&1; do
+until node_ssh controller "$AUTH; openstack compute service list --service nova-compute | grep '$node_compute.*up'" >/dev/null 2>&1; do
     sleep 2
     echo -n .
 done

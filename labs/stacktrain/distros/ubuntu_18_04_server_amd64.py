@@ -15,6 +15,7 @@ import stacktrain.core.keycodes as kc
 import stacktrain.config.general as conf
 import stacktrain.distros.distro as distro
 import stacktrain.core.log_utils as log_utils
+import stacktrain.core.app_utils as app_utils
 
 logger = logging.getLogger(__name__)
 
@@ -41,10 +42,10 @@ class ISOImage(distro.GenericISOImage):
             conf.vbox_ostype = "Ubuntu_64"
         elif arch == "i386":
             logger.error("Arch: i386 unsupported in bionic. Aborting.")
-            sys.exit(1)
+            app_utils.exit(1)
         else:
             logger.error("Unknown arch: %s. Aborting.", arch)
-            sys.exit(1)
+            app_utils.exit(1)
 
 
     # Fallback function to find current ISO image in case the file in ISO_URL
@@ -63,7 +64,7 @@ class ISOImage(distro.GenericISOImage):
             txt = dl.downloader.download(md5_url)
         except EnvironmentError:
             logger.error("Can't find newer ISO image. Aborting.")
-            sys.exit(1)
+            app_utils.exit(1)
 
         if self.arch == "amd64":
             ma = re.search(r"(.*) \*{0,1}(.*server-amd64.iso)", txt)
@@ -74,7 +75,7 @@ class ISOImage(distro.GenericISOImage):
                         self.md5)
         else:
             logger.error("Failed to update ISO location. Exiting.")
-            sys.exit(1)
+            app_utils.exit(1)
 
         logger.info("New ISO URL:\n\t%s", self.url)
 
@@ -108,6 +109,8 @@ def distro_start_installer(config):
     """Boot the ISO image operating system installer"""
 
     preseed = PRESEED_URL[conf.vm_access]
+
+    logger.info('%s(): conf.vm_access: [%s]', log_utils.get_fname(1), conf.vm_access)
 
     logger.debug("Using %s", preseed)
 

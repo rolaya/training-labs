@@ -25,6 +25,7 @@
 # and osbash does not (yet) support all features with a KVM backend.
 #
 # example: PROVIDER=kvm
+# rolaya: possibly change to use KVM (on host)
 : ${PROVIDER:=virtualbox}
 
 # vim: set ai ts=4 sw=4 et ft=sh:

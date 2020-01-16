@@ -4,8 +4,8 @@
 # controller
 10.0.0.11       controller
 
-# compute1
-10.0.0.31       compute1
+# $node_compute
+10.0.0.31       $node_compute
 
 # block1
 10.0.0.41       block1

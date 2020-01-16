@@ -17,9 +17,13 @@ function source_deploy {
         # Already sourced
         return 0
     fi
+
+    # see if a /vagrant is a mountpoint
     if mountpoint -q /vagrant; then
+        echo "Using vagrant for source deployment"
         source "$CONFIG_DIR/deploy.vagrant"
     else
+        echo "Using osbash for source deployment"
         source "$CONFIG_DIR/deploy.osbash"
     fi
 }
@@ -459,7 +463,11 @@ function node_ssh {
 }
 
 #-------------------------------------------------------------------------------
+
+# Exports PATH after appending "/sbin:/usr/sbin:/usr/local/sbin" 
 fix_path_env
+
+# ???
 source_deploy
 #-------------------------------------------------------------------------------
 

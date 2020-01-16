@@ -20,6 +20,7 @@ import stacktrain.config.general as conf
 import stacktrain.core.report as report
 import stacktrain.batch_for_windows as wbatch
 import stacktrain.core.log_utils as log_utils
+import stacktrain.core.app_utils as app_utils
 
 # -----------------------------------------------------------------------------
 
@@ -88,6 +89,8 @@ def parse_args():
                         help='Include time, PID, and DEBUG level messages')
     parser.add_argument('-b', '--build', action='store_true',
                         help='Build cluster on local machine')
+    parser.add_argument('-n', '--name', default='compute1',
+                        help='Build cluster on local machine')                        
     parser.add_argument('-q', '--quick', action='store_true',
                         help='Disable snapshot cycles during build (default)')
     parser.add_argument('-e', '--enable-snap-cycles', action='store_true',
@@ -107,6 +110,9 @@ def parse_args():
 
 
 def set_conf_vars(args):
+    
+    #logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
+
     """Store command line args in configuration variables"""
     logger = logging.getLogger(__name__)
 
@@ -116,10 +122,20 @@ def set_conf_vars(args):
 
     if not args.wbatch and not args.build:
         logger.error("Neither -b nor -w given, nothing to do. Exiting.")
-        sys.exit(1)
+        app_utils.exit(1)
 
+    # Save misc. arguments in local configuration
     conf.do_build = args.build
     conf.wbatch = args.wbatch
+    conf.target = args.target
+
+    logger.info('%s(): build:  [%s]', log_utils.get_fname(1), conf.do_build)
+    logger.info('%s(): target: [%s]', log_utils.get_fname(1), conf.target)
+
+    # Are we building a single node (i.e. compute, controller, etc)?
+    if (conf.target.find('node_') != -1):
+        conf.node_name = args.name
+        logger.info('%s(): node name: [%s]', log_utils.get_fname(1), conf.node_name)
 
     # Arguments override configuration
     logger.debug("Provider: %s (config), %s (args)", conf.provider,
@@ -154,7 +170,7 @@ def set_conf_vars(args):
         logger.warning('Valid options for provider %s: %s.', conf.provider,
                        ", ".join(gui_opts))
         logger.error('Invalid gui option: "%s". Aborting.', args.gui)
-        sys.exit(1)
+        app_utils.exit(1)
 
     if os.environ.get('SNAP_CYCLE') == 'yes':
         logger.info("Picked up SNAP_CYCLE=yes from environment.")
@@ -175,7 +191,7 @@ def abort_if_root_user():
     if not os.geteuid():
         print("Please run this program as a regular user, not as root or"
               " with sudo. Aborting.")
-        sys.exit(1)
+        app_utils.exit(1)
 
 
 def main():
@@ -192,12 +208,6 @@ def main():
     import stacktrain.core.autostart as autostart
     import stacktrain.core.node_builder as node_builder
     import stacktrain.core.functions_host as host
-
-    logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
-    log_utils.log_message("this is a test")
-    log_utils.log_entry()
-
-    #sys.exit(1)
 
     # W0612: variable defined but not used
     # pylint_: disable=W0612
@@ -270,8 +280,16 @@ def main():
         print("We are done.")
         return
 
-    host.create_host_networks()
+    logger.info('%s(): args.target:  [%s]', log_utils.get_fname(1), args.target)
 
+    app_utils.exit(1)
+    
+    if args.target != "stand_alone_node":
+        logger.info('%s(): not building standalone code:  [%s]', log_utils.get_fname(1))
+        #host.create_host_networks()
+
+    app_utils.exit(1)
+    
     start_time = time.time()
     node_builder.build_nodes(args.target)
     logger.info("Cluster build took %s seconds", hf.fmt_time_diff(start_time))
@@ -280,4 +298,4 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    app_utils.exit(main())

@@ -16,6 +16,7 @@ import errno
 import mmap
 import os
 import sys
+import stacktrain.core.app_utils as app_utils
 
 from glob import glob
 
@@ -34,7 +35,7 @@ def get_destdir(destdir, name):
     # Sanity check: we don't want to overwrite exisiting results.
     if os.path.exists(dir_path):
         print("ERROR: destination directory already exists:", dir_path)
-        sys.exit(1)
+        app_utils.exit(1)
 
     return dir_path
 
@@ -90,14 +91,14 @@ def get_ls_snap_files_from_path(snap_paths, verbose):
             if len(snap_paths) > 1:
                 print("ERROR LS_SNAP_PATH contains a directory and additional "
                       "paths. Aborting.")
-                sys.exit(1)
+                app_utils.exit(1)
             ls_snap_files = get_ls_snap_files_from_dir(path)
             break
         elif os.path.isfile(path):
             ls_snap_files.append(path)
         else:
             print("Bad argument: ", path)
-            sys.exit(1)
+            app_utils.exit(1)
 
     if verbose:
         print("LS_SNAP_PATH ", snap_paths)
@@ -226,4 +227,4 @@ def main():
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    app_utils.exit(main())

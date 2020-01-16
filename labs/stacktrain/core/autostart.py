@@ -19,6 +19,7 @@ import stacktrain.core.functions_host as host
 import stacktrain.core.helpers as hf
 import stacktrain.core.iso_image as iso_image
 import stacktrain.core.log_utils as log_utils
+import stacktrain.core.app_utils as app_utils
 # import stacktrain.kvm.install_node as inst_node
 # import stacktrain.virtualbox.vm_create as vm
 inst_node = import_module("stacktrain.%s.install_node" % conf.provider)
@@ -45,7 +46,7 @@ def ssh_exec_script(vm_name, script_path):
                    log_file=log_path)
     except EnvironmentError:
         logger.error("Script failure: %s", script_name)
-        sys.exit(1)
+        app_utils.exit(1)
 
     logger.info("  done")
 
@@ -87,6 +88,10 @@ def ssh_process_autostart(vm_name):
 def autostart_reset():
     logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     logger.debug("Resetting autostart directories.")
+
+    logger.info('%s(): conf.autostart_dir: [%s]', log_utils.get_fname(1), conf.autostart_dir)
+    logger.info('%s(): conf.status_dir: [%s]', log_utils.get_fname(1), conf.status_dir)
+
     hf.clean_dir(conf.autostart_dir)
     hf.clean_dir(conf.status_dir)
 
@@ -132,7 +137,7 @@ def wait_for_autofiles():
         os.remove(join(conf.status_dir, "done"))
     else:
         logger.error("Script failed. Exiting.")
-        sys.exit(1)
+        app_utils.exit(1)
     logger.info("Processing of scripts successful.")
 
 
@@ -185,7 +190,11 @@ def _autostart_queue(src_rel_path, target_name=None):
 
     from shutil import copyfile
 
-    copyfile(src_path, join(conf.autostart_dir, target_name))
+    shell_script = join(conf.autostart_dir, target_name)
+    copyfile(src_path, shell_script)
+
+    logger.info('%s(): script path: [%s]', log_utils.get_fname(1), shell_script)
+
     if conf.wbatch:
         wbatch.wbatch_cp_auto(src_path, join(conf.autostart_dir, target_name))
 
@@ -200,6 +209,7 @@ def autostart_queue_and_rename(src_dir, src_file, target_file):
 def autostart_queue(*args):
     logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     for script in args:
+        logger.info('%s(): queue script: [%s]', log_utils.get_fname(1), script)
         _autostart_queue(script)
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -208,7 +218,7 @@ def autostart_queue(*args):
 def syntax_error_abort(line):
     logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     logger.error("Syntax error: %s", line)
-    sys.exit(1)
+    app_utils.exit(1)
 
 
 def get_vmname_arg(line, args):
@@ -236,6 +246,9 @@ def get_two_args(line, args):
 
 def command_from_config(line):
     logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
+
+    logger.info('%s(): processing command: [%s]', log_utils.get_fname(1), line)
+
     # Drop trailing whitespace and newline
     line = line.rstrip()
 
@@ -301,6 +314,8 @@ def command_from_config(line):
 def autostart_from_config(cfg_file):
     logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     cfg_path = join(conf.config_dir, cfg_file)
+
+    logger.info('%s(): processing file: [%s]', log_utils.get_fname(1), cfg_path)
 
     if not isfile(cfg_path):
         logger.error("Config file not found:\n\t%s", cfg_path)

@@ -18,6 +18,7 @@ import stacktrain.core.helpers as hf
 import stacktrain.core.cond_sleep as cs
 import stacktrain.batch_for_windows as wb
 import stacktrain.core.log_utils as log_utils
+import stacktrain.core.app_utils as app_utils
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +35,7 @@ def init():
         if re.search("kernel module is not load", output, flags=re.MULTILINE):
             logger.error("Kernel module for VirtualBox is not loaded."
                          " Aborting.")
-            sys.exit(1)
+            app_utils.exit(1)
 
 
 def vbm_log(call_args, err_code=None):
@@ -68,6 +69,8 @@ def vbm(*args, **kwargs):
 
     call_args = [vbm_exe] + list(args)
 
+    logger.info('%s(): executing: [%s]', log_utils.get_fname(1), call_args)
+
     vbm_log(call_args)
 
     if not conf.do_build:
@@ -87,7 +90,7 @@ def vbm(*args, **kwargs):
             logger.warn("--------------------------------------------------")
             import traceback
             traceback.print_exc(file=sys.stdout)
-            sys.exit(45)
+            app_utils.exit(45)
         else:
             logger.debug("%s call failed.", vbm_exe)
             logger.debug(' '.join(call_args))
@@ -189,7 +192,7 @@ def vm_power_off(vm_name):
     vm_wait_for_shutdown(vm_name, timeout=10)
     if vm_is_running(vm_name):
         logger.error("VM %s does not power off. Aborting.", vm_name)
-        sys.exit(1)
+        app_utils.exit(1)
     # VirtualBox VM needs a break before taking new commands
     cs.conditional_sleep(1)
 
@@ -371,6 +374,10 @@ def vm_nic_set_boot_prio(vm_name, iface, index):
 def vm_create(vm_config):
     logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
     vm_name = vm_config.vm_name
+
+    logger.info('%s(): VM information:', log_utils.get_fname(1))
+    logger.info('%s(): --name:  [%s]', log_utils.get_fname(1), vm_config.vm_name)
+    logger.info('%s(): --ostype: [%s]', log_utils.get_fname(1), conf.vbox_ostype)
 
     if conf.wbatch:
         wb.wbatch_abort_if_vm_exists(vm_name)
@@ -647,7 +654,7 @@ def vm_attach_guestadd_iso(vm_name):
             # and the cluster must be built using shared folders (i.e. only
             # for wbatch testing on Linux)
             logger.error("VirtualBox guest additions not found.")
-            sys.exit(1)
+            app_utils.exit(1)
         conf.wbatch = tmp_wbatch
 
 # -----------------------------------------------------------------------------

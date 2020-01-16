@@ -86,8 +86,8 @@ function wait_for_service {
 
 echo "Running on host: $(hostname)"
 
-echo "Checking network connection to compute1 node."
-ping -c1 compute1
+echo "Checking network connection to $node_compute node."
+ping -c1 $node_compute
 echo
 
 echo "Checking services on controller node."
@@ -96,14 +96,14 @@ wait_for_service controller neutron-dhcp-agent
 wait_for_service controller neutron-metadata-agent
 echo
 
-echo "Checking services on compute1 node."
-wait_for_service compute1 nova-compute
+echo "Checking services on $node_compute node."
+wait_for_service $node_compute nova-compute
 echo
 
 function wait_for_nova_compute {
 
     echo "  Waiting for nova-compute service in state 'up'."
-    if ssh_no_chk_node compute1 service nova-compute status | \
+    if ssh_no_chk_node $node_compute service nova-compute status | \
             grep -q "start/running"; then
         echo -n "  Service is up, waiting (may take a few minutes)."
     fi
@@ -115,7 +115,7 @@ function wait_for_nova_compute {
     until openstack compute service list --service nova-compute | grep -q "| up "; do
         cnt=$((cnt + 1))
         sleep 5
-        if ssh_no_chk_node compute1 service nova-compute status | \
+        if ssh_no_chk_node $node_compute service nova-compute status | \
                 grep -q "start/running"; then
             if [ $cnt -eq 300 ]; then
                 # This should never happen.
@@ -128,7 +128,7 @@ function wait_for_nova_compute {
             echo
             echo "SUM ERROR nova-compute on compute node has died."
             echo "Restarting nova-compute on compute node."
-            ssh_no_chk_node compute1 \
+            ssh_no_chk_node $node_compute \
                 sudo service nova-compute restart
             echo "SUM ERROR nova-compute restart in wait_for_nova_compute"
         fi
@@ -196,8 +196,8 @@ function show_compute_resource_usage {
     source "$CONFIG_DIR/admin-openstackrc.sh"
     echo "As admin user, openstack host list:"
     openstack host list
-    echo "As admin user, openstack host show compute1:"
-    openstack host show compute1
+    echo "As admin user, openstack host show $node_compute:"
+    openstack host show $node_compute
     )
 }
 
@@ -475,7 +475,7 @@ function explain_instance_failure {
 
   And check resource usage in description of host 'compute':
 
-  $ openstack host show compute1
+  $ openstack host show $node_compute
 
   As a regular user, we would have to keep trying for up to a minute and hope
   it works soon.
@@ -580,7 +580,7 @@ while : ; do
                         echo
                         echo "SUM ERROR console status remains 409."
                         echo "Restarting nova-compute on compute node."
-                        ssh_no_chk_node compute1 \
+                        ssh_no_chk_node $node_compute \
                             sudo service nova-compute restart
                         echo "SUM ERROR nova-compute restart (status 409)"
                     fi
@@ -628,7 +628,7 @@ while : ; do
             echo "SUM ERROR RetryFilter returned 0 hosts"
             show_compute_resource_usage
             echo "Restarting nova-compute on compute node."
-            ssh_no_chk_node compute1 \
+            ssh_no_chk_node $node_compute \
                 sudo service nova-compute restart
             echo "SUM ERROR nova-compute restart (RetryFilter)"
         fi

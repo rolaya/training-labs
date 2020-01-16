@@ -1,7 +1,7 @@
 # Node VM configuration. Used by osbash/wbatch (host and guest).
 
 # Port forwarding
-# ssh access to compute1: 127.0.0.1:2232
+# ssh access to $node_compute: 127.0.0.1:2232
 VM_SSH_PORT=2232
 
 # Assign network interfaces to networks

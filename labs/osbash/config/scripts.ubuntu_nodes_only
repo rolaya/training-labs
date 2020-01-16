@@ -12,15 +12,15 @@ cmd queue osbash/copy_openrc.sh
 cmd snapshot_cycle -n controller controller_node_init
 
 #==============================================================================
-# Scripts for compute1 node
-cmd create_node -n compute1
-cmd queue_renamed -n compute1 osbash/init_xxx_node.sh
+# Scripts for $node_compute node
+cmd create_node -n $node_compute
+cmd queue_renamed -n $node_compute osbash/init_xxx_node.sh
 
 cmd queue etc_hosts.sh
 cmd queue osbash/enable_osbash_ssh_keys.sh
-cmd snapshot_cycle -n compute1 compute1_node_init
+cmd snapshot_cycle -n $node_compute $node_compute_node_init
 
 #==============================================================================
 # Both nodes are built, boot them
 cmd boot -n controller
-cmd boot -n compute1
+cmd boot -n $node_compute

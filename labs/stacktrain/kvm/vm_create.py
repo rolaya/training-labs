@@ -17,6 +17,7 @@ import stacktrain.config.general as conf
 
 import stacktrain.core.cond_sleep as cs
 import stacktrain.core.helpers as hf
+import stacktrain.core.app_utils as app_utils
 
 logger = logging.getLogger(__name__)
 
@@ -32,14 +33,14 @@ def init():
     except EnvironmentError:
         logger.error("Failed to connect to libvirt/KVM. Is service running?"
                      " Aborting.")
-        sys.exit(1)
+        app_utils.exit(1)
     try:
         virsh("pool-info", kvm_vol_pool, show_err=False)
     except EnvironmentError:
         logger.error("Storage pool '%s' not found. It should be created"
                      " automatically when the virt-manager GUI is started"
                      " for the first time.", kvm_vol_pool)
-        sys.exit(1)
+        app_utils.exit(1)
 
 
 def virsh_log(call_args, err_code=None):
@@ -79,7 +80,7 @@ def virsh(*args, **kwargs):
             logger.warn("output:\n%s", err.output)
             logger.exception("virsh: Aborting.")
             logger.warn("-----------------------------------------------")
-            sys.exit(1)
+            app_utils.exit(1)
         else:
             logger.debug("call_args: %s", call_args)
             logger.debug("rc: %s", err.returncode)
@@ -475,7 +476,7 @@ def vm_boot_order_pxe(vm_name):
     if sanity_check != 111:
         logger.error("vm_boot_order_pxe failed (%s). Aborting.", sanity_check)
         logger.debug("vm_boot_order_pxe original XML file:\n%s.", output)
-        sys.exit(1)
+        app_utils.exit(1)
 
     # Create file we use to redefine the VM to use PXE booting
     xml_file = os.path.join(conf.log_dir,

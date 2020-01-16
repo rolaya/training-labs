@@ -11,6 +11,7 @@ import sys
 import stacktrain.core.download as dl
 import stacktrain.core.helpers as hf
 import stacktrain.core.log_utils as log_utils
+import stacktrain.core.app_utils as app_utils
 
 logger = logging.getLogger(__name__)
 
@@ -36,22 +37,22 @@ def check_provider():
         if do_build and not hf.test_exe("VBoxManage", "-v"):
             logger.error("VBoxManage not found. Is VirtualBox installed?")
             logger.error("Aborting.")
-            sys.exit(1)
+            app_utils.exit(1)
     elif provider == "kvm":
         if platform.uname()[0] != "Linux":
             logger.error("Provider kvm only supported on Linux. Aborting.")
-            sys.exit(1)
+            app_utils.exit(1)
         if not hf.test_exe("virsh", "-v"):
             logger.error("virsh not found. Aborting.")
-            sys.exit(1)
+            app_utils.exit(1)
         if wbatch:
             logger.error("Cannot build Windows batch files with provider kvm."
                          "Aborting.")
-            sys.exit(1)
+            app_utils.exit(1)
     else:
         logger.error("Unknown provider: %s", provider)
         logger.error("Aborting.")
-        sys.exit(1)
+        app_utils.exit(1)
 
 # -----------------------------------------------------------------------------
 
@@ -101,12 +102,20 @@ class CfgFileParser(object):
                     self.cfg_vars[key] = value
 
     def get_value(self, var_name):
+        
         logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
 
         """Return value for given key (or None if it does not exist)"""
         try:
-            return self.cfg_vars[var_name]
+            value = self.cfg_vars[var_name]
+
+            logger.info('%s(): item: [%s] value [%s]', log_utils.get_fname(1), var_name, value)
+
+            return value
         except KeyError:
+
+            logger.info('%s(): item: [%s] value [%s]', log_utils.get_fname(1), var_name, "Not configured!")
+
             return None
 
     def get_numbered_value(self, var_name_root):
@@ -184,7 +193,7 @@ for index, value in networks_cfg.items():
         networks[name] = address
     else:
         logger.error("Syntax error in NETWORK_%s: %s", index, value)
-        sys.exit(1)
+        app_utils.exit(1)
 
 # -----------------------------------------------------------------------------
 snapshot_cycle = False
@@ -198,14 +207,23 @@ distro = ""
 def get_base_disk_name():
     logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
 
-    return "base-{}-{}-{}".format(vm_access, openstack_release,
-                                  iso_image.release_name)
+    logger.info('%s(): vm_access:              [%s]', log_utils.get_fname(1), vm_access)
+    logger.info('%s(): openstack_release:      [%s]', log_utils.get_fname(1), openstack_release)
+    logger.info('%s(): iso_image.release_name: [%s]', log_utils.get_fname(1), iso_image.release_name)
 
+    base_disk_name = "base-{}-{}-{}".format(vm_access, openstack_release, iso_image.release_name)
+
+    logger.info('%s(): base disk name: [%s]', log_utils.get_fname(1), base_disk_name)
+
+    return base_disk_name
 
 class VMconfig(object):
+
+    # rolaya: this does not get logged because logging framework is not ready at time of import (in st.py)
     logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
 
     def __init__(self, vm_name):
+
         logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
 
         self.vm_name = vm_name
@@ -214,6 +232,13 @@ class VMconfig(object):
         self._ssh_port = None
         self.http_port = None
         self.get_config_from_file()
+
+        logger.info('%s(): initializing VM: [%s] from configuration file: [%s]', 
+            log_utils.get_fname(1), 
+            vm_name, 
+            self.get_config_file_name())
+
+        #rolaya: SSH configuration
         # Did this run already update VM's config, lib directories?
         self.updated = False
         self.pxe_tmp_ip = None
@@ -226,7 +251,7 @@ class VMconfig(object):
             self._ssh_port = 22
         else:
             logger.error("No provider defined. Aborting.")
-            sys.exit(1)
+            app_utils.exit(1)
         logger.debug(self.__repr__())
 
     def __repr__(self):
@@ -246,6 +271,14 @@ class VMconfig(object):
         repr += " net_ifs=%r" % self.net_ifs
         repr += ">"
         return repr
+
+    def get_config_file_name(self):
+        
+        logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))
+
+        confif_file_name = join("config." + self.vm_name)
+
+        return confif_file_name
 
     def get_config_from_file(self):
         logger.info('%s(): caller: %s()', log_utils.get_fname(1), log_utils.get_fname(2))

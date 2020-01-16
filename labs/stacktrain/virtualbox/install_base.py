@@ -6,6 +6,7 @@ from __future__ import print_function
 
 import importlib
 import os
+import sys
 import errno
 import logging
 
@@ -80,6 +81,8 @@ def vm_install_base():
     base_disk_path = cvb.get_base_disk_path()
     base_build_disk = os.path.join(conf.img_dir, "tmp-disk.vdi")
 
+    logger.info('%s(): base_disk_path: %s', log_utils.get_fname(1), base_disk_path)
+
     logger.info("Creating\n\t%s.", base_disk_path)
 
     if conf.wbatch:
@@ -107,6 +110,7 @@ def vm_install_base():
     logger.info("Install ISO:\n\t%s", install_iso)
 
     vm.vm_create(vm_config)
+
     vm.vm_mem(vm_config)
 
     vm.vm_attach_dvd(vm_name, install_iso)
@@ -140,6 +144,8 @@ def vm_install_base():
     autostart.autostart_queue("zero_empty.sh", "shutdown.sh")
 
     logger.info("Booting VM %s.", vm_name)
+
+
     vm.vm_boot(vm_name)
 
     # Note: It takes about 5 seconds for the installer in the VM to be ready
@@ -152,6 +158,9 @@ def vm_install_base():
     cs.conditional_sleep(delay)
 
     logger.info("Booting into distribution installer.")
+
+    logger.info('%s(): distro_boot: [%s]', log_utils.get_fname(1), distro_boot)
+
     distro_boot.distro_start_installer(vm_config)
 
     autostart.autostart_and_wait(vm_name)

@@ -14,6 +14,7 @@ import stacktrain.core.download as dl
 import stacktrain.core.keycodes as kc
 import stacktrain.config.general as conf
 import stacktrain.distros.distro as distro
+import stacktrain.core.app_utils as app_utils
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +50,7 @@ class ISOImage(distro.GenericISOImage):
             txt = dl.downloader.download(md5_url)
         except EnvironmentError:
             logger.error("Can't find newer ISO image. Aborting.")
-            sys.exit(1)
+            app_utils.exit(1)
 
         ma = re.search(r"(.*) \*{0,1}(.*server-i386.iso)", txt)
         if ma:
@@ -59,7 +60,7 @@ class ISOImage(distro.GenericISOImage):
                         self.md5)
         else:
             logger.error("Failed to update ISO location. Exiting.")
-            sys.exit(1)
+            app_utils.exit(1)
 
         logger.info("New ISO URL:\n\t%s", self.url)
 
