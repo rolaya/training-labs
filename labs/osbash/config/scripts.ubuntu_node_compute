@@ -1,0 +1,16 @@
+#==============================================================================
+# Only create compute node VM (don't install any software)
+#==============================================================================
+
+#==============================================================================
+# Scripts for $node_compute node
+cmd create_node -n $node_compute
+cmd queue_renamed -n $node_compute osbash/init_xxx_node.sh
+
+cmd queue etc_hosts.sh
+cmd queue osbash/enable_osbash_ssh_keys.sh
+cmd snapshot_cycle -n $node_compute $node_compute_node_init
+
+#==============================================================================
+# Both nodes are built, boot them
+cmd boot -n $node_compute

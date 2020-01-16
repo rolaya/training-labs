@@ -134,8 +134,15 @@ def set_conf_vars(args):
 
     # Are we building a single node (i.e. compute, controller, etc)?
     if (conf.target.find('node_') != -1):
+
+        # Save the name of the VM node to create. Also, for now "basic_config"
+        # means a basic configuration (with "minimal" openstack components,
+        # at the very least we want to install KVM)
         conf.node_name = args.name
+        conf.basic_config = True
         logger.info('%s(): node name: [%s]', log_utils.get_fname(1), conf.node_name)
+    else:
+        conf.basic_config = False
 
     # Arguments override configuration
     logger.debug("Provider: %s (config), %s (args)", conf.provider,
@@ -282,17 +289,13 @@ def main():
 
     logger.info('%s(): args.target:  [%s]', log_utils.get_fname(1), args.target)
 
-    app_utils.exit(1)
-    
-    if args.target != "stand_alone_node":
-        logger.info('%s(): not building standalone code:  [%s]', log_utils.get_fname(1))
-        #host.create_host_networks()
+    # For now, basic config means a single node install with little openstack stuff.
+    if conf.basic_config == False:
+        host.create_host_networks()
 
-    app_utils.exit(1)
-    
     start_time = time.time()
     node_builder.build_nodes(args.target)
-    logger.info("Cluster build took %s seconds", hf.fmt_time_diff(start_time))
+    logger.info("Build took %s seconds", hf.fmt_time_diff(start_time))
 
     report.print_summary()
 

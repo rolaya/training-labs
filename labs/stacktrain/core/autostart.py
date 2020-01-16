@@ -340,5 +340,8 @@ def autostart_from_config(cfg_file):
                                 conf.jump_snapshot)
                     del conf.jump_snapshot
                     continue
+            
+            logger.info('%s(): configuration command: [%s]', log_utils.get_fname(1), line)
 
-            command_from_config(line)
+            #rolaya: restore
+            #command_from_config(line)
