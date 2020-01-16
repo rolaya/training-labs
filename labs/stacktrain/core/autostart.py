@@ -343,5 +343,5 @@ def autostart_from_config(cfg_file):
             
             logger.info('%s(): configuration command: [%s]', log_utils.get_fname(1), line)
 
-            #rolaya: restore
-            #command_from_config(line)
+            # Execute command defined in script file (for example "scripts.ubuntu_node_only")
+            command_from_config(line)

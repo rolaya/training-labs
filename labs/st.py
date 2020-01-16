@@ -141,6 +141,8 @@ def set_conf_vars(args):
         conf.node_name = args.name
         conf.basic_config = True
         logger.info('%s(): node name: [%s]', log_utils.get_fname(1), conf.node_name)
+
+        os.environ["node_compute"] = conf.node_name
     else:
         conf.basic_config = False
 

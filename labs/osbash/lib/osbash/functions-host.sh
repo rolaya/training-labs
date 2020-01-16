@@ -563,6 +563,11 @@ function command_from_config {
                     vm_scp_to_vm "$ssh_port" "$ISO_DIR/$iso_name"
             )
             ;;
+        check_env)
+            # Format: create_node [-n <node_name>]
+            #get_cmd_options $args
+            echo "$vm_name"
+            ;;            
         *)
             echo -e >&2 "${CError:-}Error: invalid cmd: ${CData:-}$cmd${CReset:-}"
             exit 1
