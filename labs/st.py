@@ -90,7 +90,7 @@ def parse_args():
     parser.add_argument('-b', '--build', action='store_true',
                         help='Build cluster on local machine')
     parser.add_argument('-n', '--name', default='compute1',
-                        help='Build cluster on local machine')                        
+                        help='Node name to build (e.g. node_compute)')                        
     parser.add_argument('-q', '--quick', action='store_true',
                         help='Disable snapshot cycles during build (default)')
     parser.add_argument('-e', '--enable-snap-cycles', action='store_true',
